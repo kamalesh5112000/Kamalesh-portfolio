@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import resumeUrl from "../KAMALESH.pdf?url";
 
-const typingPhrases = ["Kamalesh", "Full Stack Developer"];
+const typingPhrases = ["Kamalesh", "Senior Software Engineer"];
 const web3FormsAccessKey = "40f0ad34-127b-41c0-ac3a-4a38f77618b9";
 
 type ContactStatus = "idle" | "loading" | "success" | "error";
@@ -10,11 +11,11 @@ const links = {
   linkedin: "https://www.linkedin.com/in/kamaleshb05/",
   github: "https://github.com/kamalesh5112000",
   leetcode: "https://leetcode.com/Kamalesh_mc/",
-  resume: "/KAMALESH%20(2).pdf",
+  resume: resumeUrl,
 };
 
 const metrics = [
-  { value: "4", label: "Years across product engineering" },
+  { value: "~4", label: "Years across product engineering" },
   { value: "25%", label: "API latency improvement delivered" },
   { value: "35%", label: "Traffic growth through SEO improvements" },
   { value: "250+", label: "Problems solved on LeetCode" },
@@ -27,23 +28,36 @@ const skillGroups = [
   },
   {
     title: "Backend & Realtime",
-    skills: ["Node.js", "Express", "Go", "Echo", "FastAPI", "Django", "Socket.IO", "REST APIs"],
+    skills: ["Python", "Node.js", "Express", "Go", "Echo", "FastAPI", "Django", "Socket.IO", "REST APIs"],
   },
   {
     title: "AI, Data & Cloud",
-    skills: ["LLMs", "Hugging Face", "MongoDB", "MySQL", "SQL Server", "Redis", "Kafka", "AWS", "GCP", "Azure"],
+    skills: ["LLMs", "Hugging Face", "MongoDB", "MySQL", "SQL Server", "Redis", "Kafka", "AWS", "GCP", "Cloud Run", "Azure"],
   },
   {
     title: "Tools",
-    skills: ["Docker", "GitHub", "Postman", "Power BI", "Puppeteer", "SSIS", "JWT/OAuth2"],
+    skills: ["Docker", "Git", "GitHub", "Postman", "Asana", "Regex", "Power BI", "Puppeteer", "SSIS", "JWT/OAuth2"],
   },
 ];
 
 const experiences = [
   {
+    role: "Senior Software Engineer",
+    company: "Unthink Inc",
+    period: "Jul 2026 - Present",
+    theme: "Customer-facing web products, kiosks, and cloud operations",
+    bullets: [
+      "Develop and maintain customer-facing web applications and kiosk products using Next.js, React, Node.js, Django, and Python.",
+      "Manage production deployments on GCP, including Cloud Run services, server configuration, and environment management.",
+      "Resolve UI rendering, hydration, API, and deployment issues to improve application stability and user experience.",
+      "Contribute across architecture, feature implementation, production troubleshooting, monitoring, and maintenance.",
+    ],
+    stack: ["Next.js", "React", "Node.js", "Django", "Python", "MongoDB", "GCP", "Cloud Run", "Docker", "Git"],
+  },
+  {
     role: "Software Development Engineer",
     company: "Privasapien",
-    period: "Jul 2025 - Present",
+    period: "Jul 2025 - Jun 2026",
     theme: "Privacy-first backend and AI integrations",
     bullets: [
       "Built a Go and Echo middleware gateway for secure communication across 5+ internal services and LLM provider integrations.",
@@ -62,7 +76,7 @@ const experiences = [
       "Built React Native and Node.js features for hybrid mobile applications used across platforms.",
       "Improved FastAPI and MongoDB services, reducing API latency by around 25%.",
       "Integrated Microsoft Dynamics 365 Business Central for expense tracking and reporting workflows.",
-      "Experimented with an LLM-backed test case generator using browser interaction capture and Hugging Face models.",
+      "Designed an AI-powered test automation platform using interaction capture and Hugging Face LLMs, reducing manual QA effort by approximately 50%.",
     ],
     stack: ["React Native", "React", "Node.js", "FastAPI", "MongoDB", "Puppeteer", "LLMs", "Socket.IO"],
   },
@@ -80,7 +94,7 @@ const experiences = [
     stack: ["React", "Next.js", "Express", "MongoDB", "GCP", "Docker", "SEO"],
   },
   {
-    role: "Data Engineer",
+    role: "Data Engineer Intern",
     company: "HP Inc.",
     period: "Feb 2022 - Jul 2022",
     theme: "Enterprise data workflows",
@@ -96,11 +110,11 @@ const experiences = [
 
 const projects = [
   {
-    name: "AI Test Case Generator",
-    tag: "Experimental AI Tool",
+    name: "AI Test Automation Engine",
+    tag: "AI-powered QA Automation",
     description:
-      "An experimental tool that captures browser interactions and turns recorded user flows into readable test case drafts using LLMs.",
-    impact: "Explored how LLMs can reduce repetitive QA documentation work",
+      "An automation platform using WebComponents and JavaScript event interception to track feature-level interactions, with FastAPI and Socket.IO coordinating real-time workflows and Hugging Face LLMs generating readable test cases.",
+    impact: "Reduced QA documentation effort by approximately 50%",
     stack: ["React", "Python", "FastAPI", "Socket.IO", "MongoDB", "Hugging Face", "LLMs"],
   },
   {
@@ -134,11 +148,24 @@ function App() {
   const [isResumeOpen, setIsResumeOpen] = useState(false);
   const [contactStatus, setContactStatus] = useState<ContactStatus>("idle");
   const [contactMessage, setContactMessage] = useState("");
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+  const resumeDialogRef = useRef<HTMLDialogElement>(null);
+  const resumeCloseRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const handleChange = () => setPrefersReducedMotion(mediaQuery.matches);
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
 
   const currentPhrase = typingPhrases[phraseIndex];
   const typedText = currentPhrase.slice(0, visibleChars);
 
   useEffect(() => {
+    if (prefersReducedMotion) return;
     const phraseComplete = visibleChars === currentPhrase.length;
     const phraseCleared = visibleChars === 0;
     let delay = isDeleting ? 48 : 92;
@@ -162,28 +189,31 @@ function App() {
     }, delay);
 
     return () => window.clearTimeout(timer);
-  }, [currentPhrase.length, isDeleting, visibleChars]);
+  }, [currentPhrase.length, isDeleting, visibleChars, prefersReducedMotion]);
 
   useEffect(() => {
     if (!isResumeOpen) return;
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsResumeOpen(false);
-    };
-
+    const dialog = resumeDialogRef.current;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    dialog?.showModal();
+    resumeCloseRef.current?.focus();
     document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", handleKeyDown);
+      dialog?.close();
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus instanceof HTMLElement) previousFocus.focus();
     };
   }, [isResumeOpen]);
 
   const handleContactSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (contactStatus === "loading") return;
 
     const form = event.currentTarget;
+    if (!form.reportValidity()) return;
     const formData = new FormData(form);
     const name = String(formData.get("name") || "").trim();
     const email = String(formData.get("email") || "").trim();
@@ -244,9 +274,9 @@ function App() {
 
       <section id="top" className="hero section-grid">
         <div className="hero-copy">
-          <p className="eyebrow">Full Stack Developer | Mobile Apps | AI/LLM Integrations</p>
-          <h1 className="hero-title typing-title" aria-label="Kamalesh, Full Stack Developer">
-            <span className="typing-text">{typedText}</span>
+          <p className="eyebrow">Senior Software Engineer | Full Stack | Mobile | Cloud</p>
+          <h1 className="hero-title typing-title" aria-label="Kamalesh B, Senior Software Engineer">
+            <span className="typing-text" aria-hidden="true">{prefersReducedMotion ? "Kamalesh" : typedText}</span>
             <span className="typing-cursor" aria-hidden="true" />
           </h1>
           <div className="hero-specialties" aria-label="Engineering focus areas">
@@ -256,7 +286,7 @@ function App() {
             <span>Cloud Deployments</span>
           </div>
           <p className="hero-text">
-            I build web and mobile applications with clean interfaces, reliable APIs, and deployment-ready backend systems. My work spans React, React Native, Node.js, Go, FastAPI, MongoDB, cloud deployments, and AI/LLM integrations.
+            I’m a Senior Software Engineer at Unthink Inc with nearly four years of experience building web and mobile applications, scalable backend systems, and data solutions. I work across Next.js, React, React Native, Node.js, Python, Go, and cloud deployments to deliver secure, maintainable products.
           </p>
           <div className="hero-actions">
             <a className="button primary" href="#contact">Let&apos;s work together</a>
@@ -306,7 +336,7 @@ function App() {
         </div>
         <div className="about-copy">
           <p>
-            I have worked on privacy-first backend services, React and React Native applications, realtime features, cloud deployments, and enterprise data workflows. In recent work, I have also integrated AI/LLM providers into backend systems where they fit the product requirement.
+            At Unthink Inc, I develop customer-facing web applications and kiosk products, manage GCP and Cloud Run deployments, and troubleshoot production systems. My earlier work spans privacy-first microservices, mobile applications, AI-powered test automation, and enterprise data pipelines.
           </p>
           <p>
             I prefer practical engineering: readable code, predictable APIs, secure integrations, and features that are easy for a team to maintain after release.
@@ -390,7 +420,7 @@ function App() {
         </article>
         <article className="panel-card education-card">
           <p className="eyebrow">Education</p>
-          <h2>B.Tech, Computer Science</h2>
+          <h2>B.Tech, Computer Science and Engineering</h2>
           <p>Pondicherry Engineering College, Pondicherry</p>
           <div className="education-meta">
             <span>CGPA 7.56</span>
@@ -463,13 +493,13 @@ function App() {
 
       <footer className="footer">
         <span>Kamalesh B</span>
-        <span>Software Engineer based in India</span>
+        <span>Senior Software Engineer based in India</span>
         <a href="tel:+917598383120">+91 759 838 3120</a>
       </footer>
 
       {isResumeOpen && (
-        <div className="resume-modal" role="dialog" aria-modal="true" aria-labelledby="resume-title">
-          <button className="resume-backdrop" type="button" aria-label="Close resume preview" onClick={() => setIsResumeOpen(false)} />
+        <dialog ref={resumeDialogRef} className="resume-modal" aria-labelledby="resume-title" onCancel={() => setIsResumeOpen(false)} onClose={() => setIsResumeOpen(false)}>
+          <button className="resume-backdrop" type="button" tabIndex={-1} aria-label="Close resume preview" onClick={() => setIsResumeOpen(false)} />
           <div className="resume-window">
             <div className="resume-header">
               <div>
@@ -477,13 +507,13 @@ function App() {
                 <h2 id="resume-title">Kamalesh B</h2>
               </div>
               <div className="resume-actions">
-                <a className="button secondary" href={links.resume} download>Download PDF</a>
-                <button className="modal-close" type="button" onClick={() => setIsResumeOpen(false)} aria-label="Close resume preview">Close</button>
+                <a className="button secondary" href={links.resume} download="KAMALESH.pdf">Download PDF</a>
+                <button ref={resumeCloseRef} className="modal-close" type="button" onClick={() => setIsResumeOpen(false)} aria-label="Close resume preview">Close</button>
               </div>
             </div>
             <iframe className="resume-frame" src={links.resume} title="Kamalesh B resume PDF" />
           </div>
-        </div>
+        </dialog>
       )}
     </main>
   );

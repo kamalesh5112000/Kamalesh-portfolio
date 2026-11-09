@@ -55,6 +55,7 @@ button {
 
 .site-shell {
   position: relative;
+  overflow-x: clip;
   isolation: isolate;
   min-height: 100vh;
   padding: 28px clamp(18px, 4vw, 68px) 36px;
@@ -201,6 +202,7 @@ p {
 .typing-text {
   display: inline-block;
   min-width: 0;
+  overflow-wrap: anywhere;
   background: linear-gradient(110deg, #ffffff, var(--cyan), var(--lime), #ffffff);
   -webkit-background-clip: text;
   background-clip: text;
@@ -210,6 +212,7 @@ p {
 .typing-cursor {
   display: inline-block;
   width: 0.08em;
+  flex-shrink: 0;
   height: 0.78em;
   margin-left: 0.08em;
   border-radius: 999px;
@@ -879,6 +882,23 @@ code {
   display: grid;
   place-items: center;
   padding: clamp(12px, 3vw, 28px);
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  color: var(--text);
+  background: transparent;
+}
+
+.resume-modal::backdrop {
+  background: rgba(2, 5, 15, 0.88);
+}
+
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 4px;
 }
 
 .resume-backdrop {
@@ -1101,6 +1121,10 @@ code {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .typing-cursor {
+    display: none;
+  }
+
   *,
   *::before,
   *::after {
